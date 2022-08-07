@@ -49,6 +49,7 @@ func SlackAddUserToChannel(userIds []string, channel string) func(map[string]int
 		if userIds == nil || len(userIds) == configuration.ZERO {
 			userIds = []string{config["app.slack-user-default"].(string)}
 		}
+
 		if marshal, postError := json.Marshal(&PostAddUserToSlackChannel{
 			Users:   strings.Join(userIds[:], ","),
 			Channel: channel,
