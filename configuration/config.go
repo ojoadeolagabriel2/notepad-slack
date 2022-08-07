@@ -34,7 +34,7 @@ func Initialize() *Configuration {
 	configuration.Data["app.startup-time"] = time.Now()
 	configuration.Data["database.host"] = toString(os.Getenv("ENV_DB_HOSTNAME"), "localhost")
 	configuration.Data["database.name"] = toString(os.Getenv("ENV_DB_NAME"), "postgres")
-	configuration.Data["database.name"] = toInteger(os.Getenv("ENV_DB_PORT"), 5432)
+	configuration.Data["database.port"] = toInteger(os.Getenv("ENV_DB_PORT"), 5432)
 	configuration.Data["database.username"] = toString(os.Getenv("ENV_DB_USERNAME"), "postgres")
 	configuration.Data["database.password"] = toString(os.Getenv("ENV_DB_PASSWORD"), "postgres")
 	return configuration
