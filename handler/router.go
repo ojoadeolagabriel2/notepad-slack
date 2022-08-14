@@ -8,6 +8,7 @@ import (
 func InitializeAPI() *gin.Engine {
 	webEngine := gin.Default()
 	webEngine.GET("/liveliness", LivelinessHandler())
+	webEngine.GET("/readiness", ReadinessHandler())
 	_ = webEngine.Run("localhost:12345")
 	return webEngine
 }
