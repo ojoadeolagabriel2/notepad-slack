@@ -2,7 +2,6 @@ package cron
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/go-resty/resty/v2"
 	"github.com/jasonlvhit/gocron"
 	"log"
@@ -14,6 +13,12 @@ import (
 type PostAddUserToSlackChannel struct {
 	Users   string `json:"users"`
 	Channel string `json:"channel"`
+}
+
+type PostCreateMessageSlackChannel struct {
+	Users   string `json:"users"`
+	Text    string `json:"text"`
+	Channel string `json:"channel,omitempty"`
 }
 
 type SlackError struct {
@@ -100,10 +105,12 @@ func SlackAddUserToChannel(userIds []string, channel string) func(map[string]int
 func SlackMessageCreatorCron(message string, interval uint64) func(map[string]interface{}) {
 
 	return func(config map[string]interface{}) {
-		payload := fmt.Sprintf("{\"channel\":\"#test-channel\",\"text\":\"%s\"}", message)
 		_ = gocron.Every(interval).Second().Do(func() {
 			log.Println("triggering CreateSlackMessageHandler")
-			handler.CreateSlackMessageHandler(payload)
+
+			if payload, err := json.Marshal(&PostCreateMessageSlackChannel{Text: message, Channel: "#test-channel"}); err == nil {
+				handler.CreateSlackMessageHandler(string(payload))
+			}
 			log.Println("completed triggering CreateSlackMessageHandler")
 		})
 		<-gocron.Start()

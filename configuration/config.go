@@ -13,13 +13,11 @@ const (
 	ZERO = 0
 )
 
+const SlackInterval = 5
+
 type Configuration struct {
 	SourceType string
 	Data       map[string]interface{}
-}
-
-func Start() {
-
 }
 
 // Initialize starts configuration read
@@ -33,7 +31,7 @@ func Initialize() *Configuration {
 	configuration.Data["app.id"] = "notepad-slack"
 	configuration.Data["app.port"] = 12345
 	configuration.Data["app.default_timer_sec"] = 1
-	configuration.Data["app.slack-lookup-interval"] = toInteger(os.Getenv("ENV_SLACK_LOOKUP_INTERVAL"), 3)
+	configuration.Data["app.slack-lookup-interval"] = toInteger(os.Getenv("ENV_SLACK_LOOKUP_INTERVAL"), SlackInterval)
 	configuration.Data["app.slack-url"] = toString(os.Getenv("ENV_SLACK_URL"), "https://slack.com/")
 	configuration.Data["app.slack-token"] = toString(os.Getenv("ENV_SLACK_TOKEN"), "xoxb-2453596686656-2453645651088-Up5TjqtU3YsX9tUJDsL2eW62")
 	configuration.Data["app.slack-user-default"] = toString(os.Getenv("ENV_SLACK_USER_DEFAULT"), "U03SMH9NW4T")
