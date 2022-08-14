@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "net/http/pprof"
 	"notepad-slack/application"
 	"notepad-slack/configuration"
 	"notepad-slack/cron"
