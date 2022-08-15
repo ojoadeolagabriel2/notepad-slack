@@ -1,11 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
-
 	"notepad-slack/application"
 	"notepad-slack/configuration"
+	"notepad-slack/utils"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -27,11 +28,20 @@ type FileRequest struct {
 	Payload map[string]string
 }
 
+type FileRequestDto struct {
+	TraceId           string       `json:"trace_id"`
+	MerchantRequestId string       `json:"merchant_request_id"`
+	PaymentItemCode   string       `json:"payment_item_code"`
+	AmountPayable     utils.Amount `json:"amount_payable"`
+	Fee               utils.Amount `json:"fee"`
+}
+
 type FileRequestManager struct {
 	Events chan FileRequest
 }
 
 // Send send file requests
+//
 //	Parameters:
 //		request:
 //			file request [main.FileRequest]
@@ -40,10 +50,44 @@ type FileRequestManager struct {
 //	Returns:
 //		error
 func (fileRequestManager *FileRequestManager) Send(request *FileRequest) error {
+	_ = toFileRequestDto(request)
+
 	fmt.Println("sending ..." + request.Name)
 	fileRequestManager.Events <- *request
 	fmt.Println("sent ..." + request.Name)
 	return nil
+}
+
+func toFileRequestDto(request *FileRequest) *FileRequestDto {
+	currency := utils.Currency("GBP")
+	if !currency.IsValid() {
+		return nil
+	}
+
+	if success, err := validate(request); err == nil && success {
+		fileRequestDto := &FileRequestDto{
+			TraceId:           uuid.New().String(),
+			MerchantRequestId: request.Id,
+			PaymentItemCode:   request.Name,
+			AmountPayable: utils.Amount{
+				Value:    utils.ToInt64(request.Payload["amount"]),
+				Currency: currency,
+			},
+			Fee: utils.Amount{
+				Value:    utils.ToInt64(request.Payload["fee"]),
+				Currency: currency,
+			},
+		}
+		if result, err := json.Marshal(fileRequestDto); err == nil {
+			fmt.Println(string(result))
+		}
+		return fileRequestDto
+	}
+	return nil
+}
+
+func validate(request *FileRequest) (bool, error) {
+	return true, nil
 }
 
 // ApiConsumerSubscriber api test consumer
@@ -52,6 +96,7 @@ type ApiConsumerSubscriber struct {
 }
 
 // Listen listener
+//
 //	Parameter:
 //		subscriber:
 //			api consumer
